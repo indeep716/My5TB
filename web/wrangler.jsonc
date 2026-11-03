@@ -1,0 +1,5 @@
+{
+  "$schema":"../node_modules/wrangler/config-schema.json",
+  "name":"my5tb-web", "pages_build_output_dir":"../dist", "compatibility_date":"2026-08-06",
+  "services":[{"binding":"API","service":"my5tb-api"}]
+}

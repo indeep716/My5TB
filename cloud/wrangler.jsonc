@@ -1,0 +1,8 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "my5tb-api", "main": "src/index.ts", "compatibility_date": "2026-08-06",
+  "triggers": {"crons":["*/15 * * * *"]},
+  "d1_databases": [{"binding":"DB","database_name":"my5tb","database_id":"YOUR_D1_DATABASE_ID","migrations_dir":"migrations"}],
+  "r2_buckets": [{"binding":"PREVIEWS","bucket_name":"my5tb-previews"}],
+  "vars": {"SITE_ORIGIN":"https://YOUR_PROJECT.pages.dev","DATASET_ID":"models"}
+}

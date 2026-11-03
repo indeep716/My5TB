@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "my5tb"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["Pillow>=11", "cryptography>=44", "requests>=2.32", "keyring>=25", "PySide6>=6.8", "google-auth-oauthlib>=1.5"]
+[project.scripts]
+my5tb = "my5tb.cli:main"
+[tool.setuptools.packages.find]
+where = ["ingestion"]
+[tool.pytest.ini_options]
+pythonpath = ["ingestion"]
+testpaths = ["tests"]

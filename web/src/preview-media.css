@@ -1,0 +1,3 @@
+.preview-motion-toggle{width:160px;min-width:160px;max-width:160px;height:30px;min-height:30px;max-height:30px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;padding:0 10px;font-size:12px}
+.gallery-motion{position:absolute;top:16px;left:16px;z-index:4}
+@media(max-width:600px){.preview-motion-toggle{width:138px;min-width:138px;max-width:138px;font-size:11px}.gallery-motion{top:12px;left:12px}}

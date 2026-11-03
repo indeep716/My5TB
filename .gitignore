@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.env
+config.toml
+data/
+*.egg-info/
+test-results/
+deliverables/
+.superpowers/

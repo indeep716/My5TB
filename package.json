@@ -1,0 +1,29 @@
+{
+  "name": "my5tb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && tsc -p cloud/tsconfig.json && vite build",
+    "deploy:web": "npm run build && cd web && npx wrangler pages deploy ../dist --project-name my5tb-web --branch main",
+    "deploy:api": "npx wrangler deploy --config cloud/wrangler.jsonc",
+    "test": "vitest run",
+    "api:dev": "wrangler dev --config cloud/wrangler.jsonc --ip 127.0.0.1 --port 8787",
+    "db:local": "wrangler d1 migrations apply my5tb --local --config cloud/wrangler.jsonc",
+    "demo": "python scripts/demo.py"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261102.1",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^26.6.6",
+    "miniflare": "^5.20261101.0-beta",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.156.1"
+  },
+  "dependencies": {
+    "lzma1": "0.6.5"
+  }
+}

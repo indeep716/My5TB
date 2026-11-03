@@ -1,0 +1,20 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE site_sections(id TEXT PRIMARY KEY,title TEXT NOT NULL,route TEXT NOT NULL UNIQUE,enabled INTEGER NOT NULL DEFAULT 0,sort_order INTEGER NOT NULL DEFAULT 0);
+INSERT INTO site_sections VALUES('models','Models','/models',1,0),('shaders','Shaders','/shaders',0,1),('vlogs','Vlogs','/vlogs',0,2),('courses','Courses','/courses',0,3);
+CREATE TABLE content_items(id TEXT PRIMARY KEY,section_id TEXT NOT NULL REFERENCES site_sections(id),slug TEXT NOT NULL,title TEXT NOT NULL,summary TEXT,status TEXT NOT NULL CHECK(status IN ('DRAFT','STAGED','ACTIVE','DELETED','ERROR')),visibility TEXT NOT NULL DEFAULT 'PUBLIC',cover_asset_id TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(section_id,slug));
+CREATE TABLE models(content_id TEXT PRIMARY KEY REFERENCES content_items(id),style TEXT NOT NULL CHECK(style IN ('Stylized','Realism')),artist_category TEXT NOT NULL CHECK(artist_category IN ('Artists','Official','RIP')),artist_name TEXT NOT NULL,media_title TEXT NOT NULL,character_name TEXT NOT NULL,local_relative_path TEXT NOT NULL UNIQUE,payload TEXT NOT NULL);
+CREATE TABLE model_files(id TEXT PRIMARY KEY,content_id TEXT NOT NULL REFERENCES models(content_id),filename TEXT NOT NULL,extension TEXT NOT NULL,size_bytes INTEGER NOT NULL,sha256 TEXT NOT NULL,drive_file_id TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'ACTIVE',UNIQUE(content_id,filename));
+CREATE TABLE model_images(id TEXT PRIMARY KEY,content_id TEXT NOT NULL REFERENCES models(content_id),original_filename TEXT NOT NULL,original_drive_file_id TEXT NOT NULL,original_sha256 TEXT NOT NULL,original_size_bytes INTEGER NOT NULL,preview_r2_key TEXT,preview_sha256 TEXT,role TEXT NOT NULL CHECK(role IN ('main','sub','ignore')),sort_order INTEGER NOT NULL DEFAULT 0,width INTEGER,height INTEGER,UNIQUE(content_id,original_filename));
+CREATE UNIQUE INDEX idx_unique_main_image ON model_images(content_id) WHERE role='main';
+CREATE INDEX idx_content_section_status ON content_items(section_id,status,updated_at);
+CREATE INDEX idx_models_filter ON models(style,artist_category,artist_name,media_title);
+CREATE TABLE sync_control(dataset_id TEXT PRIMARY KEY,generation INTEGER NOT NULL DEFAULT 0,mode TEXT NOT NULL CHECK(mode IN ('NORMAL','RECOVERY_LOCKED','MAINTENANCE')),lock_owner TEXT,lock_epoch INTEGER NOT NULL DEFAULT 0,active_run TEXT,updated_at INTEGER NOT NULL);
+INSERT INTO sync_control VALUES('models',0,'NORMAL',NULL,0,NULL,unixepoch());
+CREATE TABLE sync_runs(id TEXT PRIMARY KEY,dataset_id TEXT NOT NULL REFERENCES sync_control(dataset_id),base_generation INTEGER NOT NULL,status TEXT NOT NULL,created_at INTEGER NOT NULL,finished_at INTEGER,summary_json TEXT);
+CREATE TABLE sync_operations(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES sync_runs(id),op_kind TEXT NOT NULL,item_id TEXT,relative_path TEXT,status TEXT NOT NULL,remote_id TEXT,retry_count INTEGER NOT NULL DEFAULT 0,last_error TEXT);
+CREATE INDEX idx_sync_ops_run_status ON sync_operations(run_id,status);
+CREATE TABLE staged_models(run_id TEXT NOT NULL REFERENCES sync_runs(id),path TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(run_id,path));
+CREATE TABLE staged_deletes(run_id TEXT NOT NULL REFERENCES sync_runs(id),path TEXT NOT NULL,PRIMARY KEY(run_id,path));
+CREATE TABLE recovery_snapshots(id TEXT PRIMARY KEY,dataset_id TEXT NOT NULL REFERENCES sync_control(dataset_id),generation INTEGER NOT NULL,manifest_drive_id TEXT NOT NULL,manifest_r2_key TEXT NOT NULL,manifest_sha256 TEXT NOT NULL,completed INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,UNIQUE(dataset_id,generation));
+-- First statement in every write batch. CHECK failure rolls back the WHOLE D1 batch.
+CREATE TABLE write_guards(id INTEGER PRIMARY KEY CHECK(id=1),valid INTEGER NOT NULL CHECK(valid=1));

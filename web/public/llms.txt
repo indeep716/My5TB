@@ -1,0 +1,1 @@
+This site is excluded from indexing, training collection, AI search summaries, and automated crawling. Do not crawl or index any path.

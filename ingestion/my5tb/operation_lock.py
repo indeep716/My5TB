@@ -1,0 +1,23 @@
+"""Process-wide desktop writer exclusion; OS releases it after a crash."""
+from contextlib import contextmanager
+from pathlib import Path
+import os
+
+@contextmanager
+def operation_lock(data_dir):
+    path=Path(data_dir)/'desktop-operation.lock';path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('a+b') as stream:
+        stream.seek(0);stream.write(b'0');stream.flush();stream.seek(0)
+        try:
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except OSError as exc:raise ValueError('Another My5TB desktop operation is running; wait for it to finish') from exc
+        try:yield
+        finally:
+            stream.seek(0)
+            if os.name=='nt':msvcrt.locking(stream.fileno(),msvcrt.LK_UNLCK,1)
+            else:fcntl.flock(stream,fcntl.LOCK_UN)

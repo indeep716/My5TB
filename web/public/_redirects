@@ -1,0 +1,3 @@
+
+/models /Characters 301
+/models/* /Characters/:splat 301

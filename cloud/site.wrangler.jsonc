@@ -1,0 +1,8 @@
+{
+  "name": "my5tb-site",
+  "main": "site-worker.ts",
+  "compatibility_date": "2026-08-06",
+  "assets": { "directory": "../dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/admin"] },
+  "services": [{ "binding": "API", "service": "my5tb-api" }],
+  "workers_dev": true
+}

@@ -1,0 +1,7 @@
+root = 'E:\3D'
+data_dir = 'data/local'
+# Start in offline mode; it never writes to Google Drive or Cloudflare.
+mode = 'offline'
+api_url = 'https://YOUR_PROJECT.pages.dev'
+[drive_folders]
+models = 'PUBLISHED_MODELS_FOLDER_ID'
